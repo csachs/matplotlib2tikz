@@ -32,6 +32,7 @@ def get_tikz_code(
         extra_axis_parameters=None,
         extra_tikzpicture_parameters=None,
         dpi=None,
+        embed_images=False,
         show_info=True
         ):
     '''Main function. Here, the recursion into the image starts and the
@@ -134,6 +135,7 @@ def get_tikz_code(
     data['legend colors'] = []
     data['extra tikzpicture parameters'] = extra_tikzpicture_parameters
     data['axis environment'] = axis_environment
+    data['embed_images'] = embed_images
     data['show_info'] = show_info
     # rectangle_legends is used to keep track of which rectangles have already
     # had \addlegendimage added. There should be only one \addlegenimage per
@@ -233,6 +235,8 @@ def _print_pgfplot_libs_message(data):
     print('\\usepackage[utf8]{inputenc}')
     print('\\usepackage{fontspec}'
           ' % This line only for XeLaTeX and LuaLaTeX')
+    if data['embed_images']:
+        print('\\usepackage{luaimageembed}')
     print('\\usepackage{pgfplots}')
     if tikzlibs:
         print('\\usetikzlibrary{' + tikzlibs + '}')
