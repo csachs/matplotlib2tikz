@@ -4,7 +4,6 @@ import os
 
 import matplotlib as mpl
 import numpy
-import PIL
 from six import BytesIO, string_types
 try:
     from base64 import encodebytes
@@ -37,25 +36,17 @@ def draw_image(data, obj):
     img_array = obj.get_array()
 
     dims = img_array.shape
-    if len(dims) == 2:  # the values are given as one real number: look at cmap
-        clims = obj.get_clim()
-        img_array = obj.norm(img_array)
-        mpl.pyplot.imsave(
-                fname=filename_or_handle,
-                arr=img_array,
-                cmap=obj.get_cmap(),
-                vmin=clims[0],
-                vmax=clims[1],
-                origin=obj.origin
-                )
+
+    if len(dims) == 2:  # the values are given as real numbers: convert using cmap
+        image = obj.get_cmap()(obj.norm(img_array))
     else:
-        # RGB (+alpha) information at each point
         assert len(dims) == 3 and dims[2] in [3, 4]
-        # convert to PIL image
-        if obj.origin == "lower":
-            img_array = numpy.flipud(img_array)
-        image = PIL.Image.fromarray(img_array)
-        image.save(filename_or_handle, origin=obj.origin)
+        image = img_array
+
+    if obj.origin == "lower":
+        image = numpy.flipud(img_array)
+
+    mpl.pyplot.imsave(fname=filename_or_handle, arr=image)
 
     # write the corresponding information to the TikZ file
     extent = obj.get_extent()
